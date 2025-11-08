@@ -1,0 +1,88 @@
+name: host_mate
+description: "A new Flutter project."
+publish_to: 'none' 
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.9.2
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  
+  # State Management - BLoC
+  flutter_bloc: ^8.1.6
+  equatable: ^2.0.5
+  
+  # HTTP Client
+  dio: ^5.7.0
+  
+  # Image Loading
+  cached_network_image: ^3.4.1
+  
+  # Google Fonts
+  google_fonts: ^6.2.1
+  
+  # SVG Support
+  flutter_svg: ^2.0.10+1
+  
+  # Audio/Video Recording
+  record: ^5.1.2
+  path_provider: ^2.1.4
+  video_player: ^2.9.2
+  camera: ^0.11.0+2
+  video_thumbnail: ^0.5.3
+  
+  # Audio Playback
+  just_audio: ^0.9.40
+  
+  # Code Generation
+  freezed_annotation: ^2.4.1
+  json_annotation: ^4.9.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^5.0.0
+  
+  # Code Generation
+  build_runner: ^2.4.13
+  freezed: ^2.5.2
+  json_serializable: ^6.8.0
+  
+  # App Icon Generator
+  flutter_launcher_icons: ^0.13.1
+
+dependency_overrides:
+  record_linux: ^1.2.1
+
+flutter:
+  # the material Icons class.
+  uses-material-design: true
+
+  # Assets
+  assets:
+    - assets/bg.png
+    - assets/Vector.svg
+    - assets/mic.png
+    - assets/bin.png
+
+# Flutter Launcher Icons Configuration
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/app_logo.png"
+  min_sdk_android: 21 
+  web:
+    generate: true
+    image_path: "assets/app_logo.png"
+    background_color: "#1A1A1A"
+    theme_color: "#9196FF"
+  windows:
+    generate: true
+    image_path: "assets/app_logo.png"
+    icon_size: 48 
+  macos:
+    generate: true
+    image_path: "assets/app_logo.png"
