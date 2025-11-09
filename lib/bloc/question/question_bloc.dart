@@ -22,6 +22,9 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
   CameraController? _cameraController;
   bool _isInitializingCamera = false;
 
+  // Getter to expose camera controller for preview
+  CameraController? get cameraController => _cameraController;
+
   QuestionBloc() : super(const QuestionState()) {
     on<UpdateQuestionText>(_onUpdateQuestionText);
     on<StartAudioRecording>(_onStartAudioRecording);

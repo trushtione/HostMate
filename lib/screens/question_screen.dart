@@ -289,6 +289,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
                                   videoState: state.videoState,
                                   onStopRecording: _stopVideoRecording,
                                   formatDuration: _formatDuration,
+                                  cameraController: BlocProvider.of<QuestionBloc>(context).cameraController,
                                 ),
                               ),
 

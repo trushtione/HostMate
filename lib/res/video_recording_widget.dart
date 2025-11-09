@@ -1,16 +1,20 @@
+import 'dart:async';
 import 'dart:io';
+import 'package:camera/camera.dart';
 import 'app_imports.dart';
 
 class VideoRecordingWidget extends StatefulWidget {
   final VideoRecordingState videoState;
   final VoidCallback onStopRecording;
   final String Function(Duration) formatDuration;
+  final CameraController? cameraController;
 
   const VideoRecordingWidget({
     super.key,
     required this.videoState,
     required this.onStopRecording,
     required this.formatDuration,
+    this.cameraController,
   });
 
   @override
@@ -21,6 +25,13 @@ class _VideoRecordingWidgetState extends State<VideoRecordingWidget> {
   bool _isVideoTapped = false;
   bool _isPlayIconTapped = false;
   Duration? _pausedVideoDuration;
+  Timer? _cameraCheckTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _startCameraCheck();
+  }
 
   @override
   void didUpdateWidget(VideoRecordingWidget oldWidget) {
@@ -30,13 +41,96 @@ class _VideoRecordingWidgetState extends State<VideoRecordingWidget> {
       _isVideoTapped = false;
       _pausedVideoDuration = null;
       _isPlayIconTapped = false;
+      _cameraCheckTimer?.cancel();
     }
     // Reset states when video is deleted
     if (oldWidget.videoState.hasRecorded && !widget.videoState.hasRecorded) {
       _isVideoTapped = false;
       _pausedVideoDuration = null;
       _isPlayIconTapped = false;
+      _cameraCheckTimer?.cancel();
     }
+    // Start checking if camera becomes available
+    if (widget.videoState.isRecording && widget.cameraController != null) {
+      _startCameraCheck();
+    }
+  }
+
+  void _startCameraCheck() {
+    if (widget.videoState.isRecording && widget.cameraController != null) {
+      _cameraCheckTimer?.cancel();
+      // Check immediately first
+      if (widget.cameraController!.value.isInitialized &&
+          widget.cameraController!.value.previewSize != null) {
+        if (mounted) setState(() {});
+        return;
+      }
+      // Then check periodically
+      _cameraCheckTimer = Timer.periodic(const Duration(milliseconds: 100), (
+        timer,
+      ) {
+        if (mounted &&
+            widget.cameraController != null &&
+            widget.cameraController!.value.isInitialized &&
+            widget.cameraController!.value.previewSize != null) {
+          setState(() {});
+          timer.cancel();
+        }
+        // Cancel after 5 seconds to avoid infinite checking
+        if (timer.tick > 50) {
+          timer.cancel();
+        }
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _cameraCheckTimer?.cancel();
+    super.dispose();
+  }
+
+  Widget _buildCameraPreview() {
+    if (widget.cameraController == null) {
+      return const Center(
+        child: Icon(
+          Icons.videocam,
+          color: Colors.white,
+          size: 32,
+        ),
+      );
+    }
+
+    final controller = widget.cameraController!;
+    
+    if (!controller.value.isInitialized) {
+      return const Center(
+        child: Icon(
+          Icons.videocam,
+          color: Colors.white,
+          size: 32,
+        ),
+      );
+    }
+
+    final previewSize = controller.value.previewSize;
+    if (previewSize == null) {
+      return const Center(
+        child: Icon(
+          Icons.videocam,
+          color: Colors.white,
+          size: 32,
+        ),
+      );
+    }
+
+    // Calculate aspect ratio (width/height)
+    final aspectRatio = previewSize.width / previewSize.height;
+    
+    return AspectRatio(
+      aspectRatio: aspectRatio,
+      child: CameraPreview(controller),
+    );
   }
 
   @override
@@ -115,13 +209,18 @@ class _VideoRecordingWidgetState extends State<VideoRecordingWidget> {
               const SizedBox(width: 16),
               Expanded(
                 child: Container(
-                  height: 60,
+                  height: 120,
                   decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.3),
+                    color: Colors.black,
                     borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.2),
+                      width: 1,
+                    ),
                   ),
-                  child: const Center(
-                    child: Icon(Icons.videocam, color: Colors.white, size: 32),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: _buildCameraPreview(),
                   ),
                 ),
               ),
